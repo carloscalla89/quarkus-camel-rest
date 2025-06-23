@@ -1,3 +1,5 @@
+#Es necesario aplicar un mvn package antes de ejecutar el docker build
+
 FROM registry.access.redhat.com/ubi8/openjdk-21:1.20
  
 ENV LANGUAGE='en_US:en'

@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
+    <Properties>
+        <Property name="appName" value="quarkus-camel-rest"/>
+    </Properties>
     <Appenders>
         <!-- Appender para la consola -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="******* %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%c{1.}] (%t) - %m%n"/>
         </Console>
     </Appenders>
 
     <Loggers>
-        <!-- Nivel de logs para el paquete com.example -->
-        <Logger name="com.example" level="DEBUG" additivity="false">
+        <!-- Loggers de Camel con nivel INFO (útil para ver rutas, procesadores, errores) -->
+        <Logger name="org.apache.camel" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Logger para tus clases -->
+        <Logger name="com.demo" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
 

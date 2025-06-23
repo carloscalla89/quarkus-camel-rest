@@ -100,12 +100,6 @@
             <artifactId>camel-quarkus-direct</artifactId>
         </dependency>
 
-        <!-- Excluir el logging de Quarkus -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-logging-json</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <!-- Agregar SLF4J API -->
         <dependency>
@@ -113,11 +107,7 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!-- Agregar Log4j2 -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-        </dependency>
+
 
         <!-- Logging implementation (Log4j Core) -->
         <dependency>
@@ -126,19 +116,20 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Log4j JSON-encoding support -->
+        <!-- Agregar Log4j2 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <!-- Log4j JSON-encoding support
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-layout-template-json</artifactId>
             <scope>runtime</scope>
-        </dependency>
+        </dependency>-->
 
-        <!-- SLF4J-to-Log4j bridge -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j2-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
@@ -177,12 +168,6 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <maven.home>${maven.home}</maven.home>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -195,13 +180,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <systemPropertyVariables>
-                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <maven.home>${maven.home}</maven.home>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>io.quarkus</groupId>
