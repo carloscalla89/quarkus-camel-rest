@@ -6,6 +6,8 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.MDC;
+
 
 @Slf4j
 @ApplicationScoped
@@ -23,10 +25,10 @@ public class ExternalServiceRoute extends RouteBuilder {
                 .setBody().simple("result: ${header.id}");
 
         from("direct:callExternalServicePost")
-                .log(LoggingLevel.ERROR, "testing ERROR")
+                .log(LoggingLevel.ERROR, "ERROR")
                 .log("Recibiendo persona 2: ${body}")
                 .process(resp -> {
-                    log.info("response exchange:{}",resp.getExchangeId());
+                    MDC.put("requestid","TESTING");
                 })
                 .setBody(constant("Success"));
 
