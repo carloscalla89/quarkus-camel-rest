@@ -21,15 +21,12 @@ public class ExternalServiceRoute extends RouteBuilder {
 
 
         from("direct:callExternalServiceGet")
-                .log("headers: ${header.id} and token: ${header.token}")
+                //.log("headers: ${header.id} and token: ${header.token}")
                 .setBody().simple("result: ${header.id}");
 
         from("direct:callExternalServicePost")
-                .log(LoggingLevel.ERROR, "ERROR")
-                .log("Recibiendo persona 2: ${body}")
-                .process(resp -> {
-                    MDC.put("requestid","TESTING");
-                })
+                //.log(LoggingLevel.ERROR, "ERROR")
+                //.log("Recibiendo persona 2: ${body}")
                 .setBody(constant("Success"));
 
     }
