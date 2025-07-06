@@ -56,3 +56,8 @@ If you want to learn more about building native executables, please consult <htt
 ## Related Guides
 
 - Camel Core ([guide](https://camel.apache.org/camel-quarkus/latest/reference/extensions/core.html)): Camel core functionality and basic Camel languages: Constant, ExchangeProperty, Header, Ref, Simple and Tokenize
+
+## Propiedades para opentelemetry
+quarkus.otel.traces.exporter (by default cdi)
+quarkus.otel.metrics.exporter (by default cdi)
+quarkus.otel.logs.exporter (by default cdi)

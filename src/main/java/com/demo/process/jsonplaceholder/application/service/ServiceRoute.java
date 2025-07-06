@@ -3,9 +3,7 @@ package com.demo.process.jsonplaceholder.application.service;
 import com.demo.process.jsonplaceholder.application.dto.OpportunityQueryRequest;
 import com.demo.process.jsonplaceholder.application.filters.BaseRouteBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
+
 
 @ApplicationScoped
 public class ServiceRoute extends BaseRouteBuilder {
