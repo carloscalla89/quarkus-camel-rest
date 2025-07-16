@@ -3,6 +3,7 @@ package com.demo.process.jsonplaceholder.application.service;
 import com.demo.process.jsonplaceholder.application.dto.OpportunityQueryRequest;
 import com.demo.process.jsonplaceholder.application.filters.BaseRouteBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.apache.camel.model.rest.RestBindingMode;
 
 
 @ApplicationScoped
@@ -11,16 +12,14 @@ public class ServiceRoute extends BaseRouteBuilder {
     @Override
     public void configureBusinessRoutes() throws Exception {
 
-        /*
-        interceptFrom("rest:*")
-                .log(LoggingLevel.INFO,"filters to print");
-
-         */
+        restConfiguration()
+                .component("platform-http")
+                .bindingMode(RestBindingMode.auto);
 
         rest("/camel-rest/jsonplaceholder/posts")
                 .get("/{id}")
                 .routeId("restGetRouter")
-                .to("direct:mainRestGetRouter");
+                .to("direct:callExternalServiceGet");
 
         rest("/camel-rest/jsonplaceholder/posts")
                 .post()

@@ -28,7 +28,8 @@ public abstract class BaseRouteBuilder extends RouteBuilder {
                     String path = exchange.getIn().getHeader(Exchange.HTTP_PATH, String.class);
                     String body = exchange.getMessage().getBody(String.class);
 
-                    MDC.put("trace-id", traceId);
+                    if (traceId != null ) MDC.put("traceCustomId", traceId);
+
                     MDC.put("method", method);
                     MDC.put("path", path);
                     MDC.put("baseUri", rootPath);
