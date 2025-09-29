@@ -1,0 +1,18 @@
+# Etapa de preparación: instalar solo lo necesario y strip
+FROM registry.access.redhat.com/ubi9-minimal AS prep
+RUN microdnf install -y zlib ca-certificates binutils && microdnf clean all
+WORKDIR /in
+COPY target/*-runner /in/application
+# Quita símbolos innecesarios del binario (reduce varios MB)
+RUN strip /in/application
+
+# Etapa final super-liviana en UBI9-micro
+FROM registry.access.redhat.com/ubi9-micro
+WORKDIR /work
+# Copiamos solo el binario y las librerías estrictamente necesarias
+COPY --from=prep /in/application /work/application
+COPY --from=prep /usr/lib64/libz.so.1* /usr/lib64/
+COPY --from=prep /etc/pki/ca-trust /etc/pki/ca-trust
+USER 10001
+EXPOSE 8084
+ENTRYPOINT ["/work/application"]

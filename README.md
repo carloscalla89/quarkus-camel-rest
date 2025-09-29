@@ -12,7 +12,9 @@ You can run your application in dev mode that enables live coding using:
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+```mvn command
+mvn quarkus:dev
+```
 
 ## Packaging and running the application
 
@@ -20,6 +22,10 @@ The application can be packaged using:
 
 ```shell script
 ./mvnw package
+```
+
+```mvn command
+mvn package
 ```
 
 It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
@@ -39,28 +45,55 @@ The application, packaged as an _über-jar_, is now runnable using `java -jar ta
 
 You can create a native executable using:
 
-```shell script
-./mvnw package -Dnative
+``` maven command
+mvn package -Dnative
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+```maven command
+mvn package -Dnative -Dquarkus.native.container-build=true
+```
+
+```in application.properties
+# Construcción nativa dentro de contenedor
+quarkus.native.container-build=true
+
+# Runtime de contenedor (elige lo que tengas)
+quarkus.native.container-runtime=docker
+
+# Imagen builder Mandrel (elige versión y Java 17/21 acorde a tu proyecto)
+quarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21
 ```
 
 You can then execute your native executable with: `./target/quarkus-camel-1.0.0-SNAPSHOT-runner`
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 
-## Related Guides
+```construcción de imágenes nativas:
 
-- Camel Core ([guide](https://camel.apache.org/camel-quarkus/latest/reference/extensions/core.html)): Camel core functionality and basic Camel languages: Constant, ExchangeProperty, Header, Ref, Simple and Tokenize
+-- contrucción con imagen nativa minima UBI/RHEL
+mvn -Pnative package
+docker build -f .\docker\Dockerfile.native -t carlos89/quarkus-native .
+docker run --rm -d -p 8081:8081 --name quarkus-native carlos89/quarkus-native:latest
+
+-- contrucción con imagen nativa micro UBI/RHEL
+mvn -Pnative package
+docker build -f .\docker\Dockerfile.native-micro -t carlos89/quarkus-native-micro .
+docker run --rm -d -p 8083:8081 --name quarkus-native-micro carlos89/quarkus-native-micro:latest
+
+-- contrucción con imagen nativa micro lite UBI/RHEL
+mvn -Pnative package
+docker build -f .\docker\Dockerfile.native-micro-lite -t carlos89/quarkus-native-micro-lite .
+docker run --rm -d -p 8084:8081 --name quarkus-native-micro-lite carlos89/quarkus-native-micro-lite:latest
+
+-- construcción de imagen con jvm
+docker build -f .\docker\Dockerfile -t carlos89/quarkus-jvm .
+docker run --rm -d -p 8082:8081 --name quarkus-jvm carlos89/quarkus-jvm:latest
 
 ## Propiedades para opentelemetry
 quarkus.otel.traces.exporter (by default cdi)
 quarkus.otel.metrics.exporter (by default cdi)
 quarkus.otel.logs.exporter (by default cdi)
-
+```
 
 comando apra ejecutar k6 con docker: docker run --rm -i -v "C:\Users\gcall\Documents\carlos\workspace\quarkus-camel-rest\scripts":/scripts -w /scripts --add-host=host.docker.internal:host-gateway grafana/k6:latest run --vus 20 --duration 1m --out json=resultado.json script.js

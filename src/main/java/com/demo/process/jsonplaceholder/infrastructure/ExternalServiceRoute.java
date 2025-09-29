@@ -1,5 +1,6 @@
 package com.demo.process.jsonplaceholder.infrastructure;
 
+import com.demo.process.jsonplaceholder.application.dto.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
@@ -29,7 +30,7 @@ public class ExternalServiceRoute extends RouteBuilder {
                 .removeHeader(Exchange.HTTP_PATH)
                 .removeHeader(Exchange.HTTP_URI)
                 .to("http://jsonplaceholder.typicode.com/posts/1?bridgeEndpoint=true")
-                .unmarshal().json(org.apache.camel.model.dataformat.JsonLibrary.Jackson, Post.class)
+                .unmarshal().json(org.apache.camel.model.dataformat.JsonLibrary.Jackson, Response.class)
                 .log(">> Resultado: ${body}");
 
         from("direct:callExternalServicePost")
@@ -38,11 +39,4 @@ public class ExternalServiceRoute extends RouteBuilder {
 
     }
 
-    public static class Post {
-        public int userId;
-        public int id;
-        public String title;
-        public String body;
-        // getters y setters...
-    }
 }

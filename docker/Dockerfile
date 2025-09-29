@@ -12,7 +12,7 @@ COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 #COPY opentelemetry/opentelemetry-javaagent.jar /opentelemetry/opentelemetry-javaagent.jar
 
-EXPOSE 8081
+EXPOSE 8082
 USER 185
 #ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 
