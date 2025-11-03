@@ -2,6 +2,7 @@ package com.demo.process.jsonplaceholder.cross;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonConstants;
@@ -16,8 +17,7 @@ public abstract class HttpClientEnvelopeRouteBuilder extends RouteBuilder {
     public static final String H_ORIG_URI = "_origUri";
     public static final String H_ENVELOPED = "X-ENVELOPED";
 
-    @Inject
-    @jakarta.inject.Named("logTrace")
+    @Inject @Named("logTrace")
     protected LoggerTrace loggerTrace;
 
     @Override
@@ -31,7 +31,7 @@ public abstract class HttpClientEnvelopeRouteBuilder extends RouteBuilder {
         // Genérico (SIEMPRE al final)
         onException(Exception.class)
                 .onWhen(header(H_ENVELOPED).isEqualTo(true))
-                .bean("logTrace", "onFailure")
+                .bean("logTrace")
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(500))
                 .process(e -> {
                     var ex = e.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
@@ -46,7 +46,8 @@ public abstract class HttpClientEnvelopeRouteBuilder extends RouteBuilder {
         //TOP-LEVEL
         onCompletion()
                 .onWhen(header(H_ENVELOPED).isEqualTo(true)) //filtra solo para tu envelope
-                .bean("logTrace", "formatResponseRoot");
+                //.bean("logTrace", "formatResponseRoot");
+                .process(pr -> loggerTrace.formatResponseRoot(pr));
 
         interceptSendToEndpoint("http*")
                 .onWhen(header(H_ENVELOPED).isNull())
