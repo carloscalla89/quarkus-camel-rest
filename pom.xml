@@ -41,6 +41,13 @@
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.quarkus/quarkus-rest-client-jackson -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
+        </dependency>
+
+
         <!-- Camel mínimo para HTTP saliente -->
         <!-- Camel mínimo para exponer + HTTP saliente -->
         <!-- Camel expone endpoints con REST DSL + sin JAX-RS -->
