@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkus-camel-rest-native
+  labels:
+    app: quarkus-camel-rest-native
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quarkus-camel-rest-native
+  template:
+    metadata:
+      labels:
+        app: quarkus-camel-rest-native
+    spec:
+      containers:
+        - name: quarkus-camel-rest-native
+          image: carlos89/quarkus-native-micro-image:latest # Asumiendo tag latest
+          # IMPORTANTE: IfNotPresent asegura que use la imagen cargada localmente
+          # en lugar de intentar descargarla de internet (y fallar).
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: QUARKUS_OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4317"
+            - name: QUARKUS_APPLICATION_NAME
+              value: "quarkus-camel-rest"
+          ports:
+            - containerPort: 8081
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "10m"
+            limits:
+              memory: "128Mi" # Las imágenes nativas consumen muy poca RAM
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarkus-camel-rest-native
+spec:
+  selector:
+    app: quarkus-camel-rest-native
+  type: NodePort
+  ports:
+    - port: 80       # Puerto expuesto en el servicio
+      targetPort: 8081 # Puerto de tu contenedor Quarkus

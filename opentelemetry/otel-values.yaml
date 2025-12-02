@@ -1,0 +1,175 @@
+mode: daemonset
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  pullPolicy: IfNotPresent
+
+service:
+  enabled: true
+  type: ClusterIP
+
+presets:
+  logsCollection:
+    enabled: true
+    includeCollectorLogs: false
+  kubernetesAttributes:
+    enabled: true
+
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    hostPort: 4317
+    protocol: TCP
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    hostPort: 4318
+    protocol: TCP
+  healthcheck:
+    enabled: true
+    containerPort: 13133
+    servicePort: 13133
+    protocol: TCP
+
+config:
+  extensions:
+    health_check:
+      endpoint: 0.0.0.0:13133
+
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+    hostmetrics:
+      collection_interval: 10s
+      scrapers:
+        paging:
+          metrics:
+            system.paging.utilization:
+              enabled: true
+        cpu:
+          metrics:
+            system.cpu.utilization:
+              enabled: true
+        disk:
+        filesystem:
+          metrics:
+            system.filesystem.utilization:
+              enabled: true
+        load:
+        memory:
+        network:
+        processes:
+
+    filelog:
+      include:
+        - /var/log/pods/*/*/*.log
+      exclude:
+          - /var/log/pods/*otel-collector*/*.log
+      include_file_name: false
+      include_file_path: true
+      operators:
+          - type: container
+
+  processors:
+    filter:
+      error_mode: ignore
+      logs:
+        # Usamos INCLUDE (Lista Blanca).
+        # "Si el log NO es de 'default', tíralo a la basura".
+        include:
+          match_type: strict
+          resource_attributes:
+            - key: k8s.namespace.name
+              value: default
+    batch:
+      # Agregamos configuración explícita para evitar que sea null
+      timeout: 1s
+      send_batch_size: 1024
+
+    # ### NUEVO: Enriquece los datos con info de Kubernetes ###
+    k8sattributes:
+      auth_type: "serviceAccount"
+      passthrough: false
+      extract:
+        metadata:
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.deployment.name
+          - k8s.namespace.name
+          - k8s.container.name
+      # Esto permite asociar el log al pod correcto usando la IP o el UID
+      pod_association:
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.uid
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.name
+            - from: resource_attribute
+              name: k8s.namespace.name
+        - sources:
+            - from: connection
+
+    resourcedetection:
+      detectors: [ system, env ]
+      timeout: 2s
+      override: false
+
+    resource:
+      attributes:
+        - key: host.name
+          from_attribute: k8s.node.name
+          action: insert
+        - key: deployment.environment
+          value: "demo-minikube"
+          action: insert
+        - key: service.version
+          value: "1.0.0"
+          action: insert
+  # -----------------------
+  connectors:
+    datadog/connector:
+
+  exporters:
+    debug:
+      verbosity: normal
+    otlp/elastic:
+      # IMPORTANTE: Usa el endpoint de APM, no el de Kibana ni el de Elasticsearch
+      endpoint: "https://db843a7fa558418396d18c727f59e4ed.ingest.us-central1.gcp.elastic.cloud:443"
+      headers:
+        # El token que sacaste de la consola de Elastic Cloud (Sección Integrations -> APM)
+        Authorization: "ApiKey <key-1>"
+      compression: gzip
+    datadog/exporter:
+      api:
+        site: "us5.datadoghq.com"
+        key: "<key-2>"
+      host_metadata:
+        enabled: true
+        hostname_source: first_resource
+        tags:
+          - "env:demo-minikube"
+          - "source:otel-collector"
+
+  service:
+    extensions: [health_check]
+    pipelines:
+      traces:
+        receivers: [ otlp ]
+        processors: [ k8sattributes, resource, batch ]
+        exporters: [ otlp/elastic, datadog/connector, debug ]
+      metrics:
+        receivers: [ datadog/connector, otlp, hostmetrics]
+        processors: [ batch ]
+        exporters: [ datadog/exporter ]
+      logs:
+        receivers: [ otlp, filelog]
+        processors: [k8sattributes, resource, filter, batch]
+        exporters: [ otlp/elastic, debug ]

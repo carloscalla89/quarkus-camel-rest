@@ -125,20 +125,11 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-opentelemetry</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.opentelemetry.instrumentation</groupId>
-                    <artifactId>opentelemetry-runtime-telemetry</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.opentelemetry.instrumentation</groupId>
-                    <artifactId>opentelemetry-runtime-telemetry-java17</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.opentelemetry.instrumentation</groupId>
-                    <artifactId>opentelemetry-instrumentation-runtime-metrics-java17</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-micrometer-opentelemetry</artifactId>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->

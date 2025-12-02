@@ -129,3 +129,10 @@ quarkus.otel.logs.exporter (by default cdi)
 ## Ejecución k6 con docker: 
 ```Ejecucar k6 con docker:
 docker run --rm -i -v "C:\Users\gcall\Documents\carlos\workspace\quarkus-camel-rest\scripts":/scripts -w /scripts --add-host=host.docker.internal:host-gateway grafana/k6:latest run --vus 20 --duration 1m --out json=resultado.json script.js
+```
+
+## Ejecución en minikube
+```Ejecucar k6 con docker:
+kubectl apply -f .\k8s\deployment.yaml
+kubectl port-forward service/quarkus-camel-rest-native 8081:80
+```

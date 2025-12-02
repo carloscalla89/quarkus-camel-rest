@@ -1,0 +1,26 @@
+# ETAPA 1: Builder (Usando Mandrel)
+# Usamos la imagen oficial de Quarkus con Mandrel y Maven preinstalado
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS build
+COPY --chown=quarkus:quarkus mvnw /code/mvnw
+COPY --chown=quarkus:quarkus .mvn /code/.mvn
+RUN sed -i 's/\r$//' /code/mvnw
+RUN chmod +x /code/mvnw
+COPY --chown=quarkus:quarkus pom.xml /code/
+USER quarkus
+WORKDIR /code
+# Descargar dependencias primero (para cachear capas)
+RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
+COPY src /code/src
+# Compilar a nativo
+RUN ./mvnw package -Pnative
+
+# ETAPA 2: Runtime (Imagen final ligera)
+# 'quarkus-micro-image' es una imagen base mínima (similar a distroless) optimizada para Quarkus
+FROM quay.io/quarkus/quarkus-micro-image:2.0
+WORKDIR /work/
+COPY --from=build /code/target/*-runner /work/application
+
+# Permisos y ejecución
+RUN chmod 775 /work
+EXPOSE 8081
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
