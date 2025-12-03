@@ -12,24 +12,21 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class JsonPlaceHolderController {
 
-    // Inyectamos la lógica de negocio (reemplaza a los rutas direct:...)
     @Inject
     JsonPlaceHolderBusinessService businessService;
 
-    // 2. Reemplaza .get("/posts/{id}")
     @GET
     @Path("/posts/{id}")
     public Response getPostById(@PathParam("id") String id) {
-        // Aquí llamas a la lógica que antes estaba en "direct:getPostById"
+
         var result = businessService.getPostById(id);
         return Response.ok(result).build();
     }
 
-    // 3. Reemplaza .post("/post") y .type(PostBodyDtoRequest.class)
     @POST
     @Path("/post")
     public Response createPost(PostBodyDtoRequest request) {
-        // Aquí llamas a la lógica que antes estaba en "direct:createPost"
+
         var result = businessService.createPost(request);
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
