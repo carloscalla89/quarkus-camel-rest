@@ -1,42 +1,25 @@
 package com.demo.process.jsonplaceholder.infrastructure;
 
-import com.demo.process.jsonplaceholder.application.dto.Response;
+import com.demo.process.jsonplaceholder.cross.HttpClientEnvelopeRouteBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.MDC;
-
 
 @Slf4j
 @ApplicationScoped
-public class ExternalServiceRoute extends RouteBuilder {
-
-    @ConfigProperty(name = "external.service.url")
-    String externalServiceUrl;
+public class ExternalServiceRoute extends HttpClientEnvelopeRouteBuilder {
 
     @Override
-    public void configure() throws Exception {
-// 1) REST interno expuesto con plataforma (platform-http o Undertow)
+    protected void configureRoutes() throws Exception {
 
+        from("direct:getPostById")
+                .setHeader(HttpClientEnvelopeRouteBuilder.H_OUT_TYPE_FQN, constant(JsonPlaceHolderDtoResponse.class))
+                .setHeader("_path", simple("/posts/${header.id}"))
+                .toD("https://jsonplaceholder.typicode.com/posts/${header.id}");
 
-        from("direct:callExternalServiceGet")
-                .routeId("call-jsonplaceholder")
-                //.log("headers: ${header.id} and token: ${header.token}")
-                .setHeader(Exchange.HTTP_METHOD, constant("GET"))
-                .removeHeader(Exchange.HTTP_PATH)
-                .removeHeader(Exchange.HTTP_URI)
-                .to("http://jsonplaceholder.typicode.com/posts/1?bridgeEndpoint=true")
-                .unmarshal().json(org.apache.camel.model.dataformat.JsonLibrary.Jackson, Response.class)
-                .log(">> Resultado: ${body}");
-
-        from("direct:callExternalServicePost")
-                .log("Recibiendo persona 2: ${body}")
-                .setBody(constant("Success"));
-
+        from("direct:createPost")
+                .setBody(simple("${body}"))
+                .setHeader(HttpClientEnvelopeRouteBuilder.H_MARSHAL_JSON, constant(true))
+                .setHeader(HttpClientEnvelopeRouteBuilder.H_OUT_TYPE_FQN, constant(JsonPlaceHolderDtoResponse.class))
+                .to("https://jsonplaceholder.typicode.com/posts");
     }
-
 }

@@ -49,12 +49,16 @@ You can create a native executable using:
 mvn package -Dnative
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+O si no tienes instalado GraalVM, puedes construir de manera nativa mediante contenedores:
 
 ```maven command
-mvn package -Dnative -Dquarkus.native.container-build=true
+mvn -Pnative package \
+  -Dquarkus.native.container-build=true \
+  -Dquarkus.native.container-runtime=docker \
+  -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21
 ```
 
+Otra opción es  agregar los atributos container-build, container-runtime y builder-image en el archivo application.properties
 ```in application.properties
 # Construcción nativa dentro de contenedor
 quarkus.native.container-build=true
@@ -66,34 +70,62 @@ quarkus.native.container-runtime=docker
 quarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21
 ```
 
-You can then execute your native executable with: `./target/quarkus-camel-1.0.0-SNAPSHOT-runner`
+Puedes ejecutar la imagen nativa de la siguiente forma: `./target/quarkus-camel-1.0.0-SNAPSHOT-runner`
 
+## Construcción y ejecución de imágenes nativas (en docker desktop)
+Construcción y ejecución de imágenes nativas UBI/RHEL
 
-```construcción de imágenes nativas:
-
--- contrucción con imagen nativa minima UBI/RHEL
+```construcción y ejecución de imágenes nativas UBI/RHEL:
+# contrucción
 mvn -Pnative package
 docker build -f .\docker\Dockerfile.native -t carlos89/quarkus-native .
-docker run --rm -d -p 8081:8081 --name quarkus-native carlos89/quarkus-native:latest
 
--- contrucción con imagen nativa micro UBI/RHEL
+# ejecución
+docker run --rm -d -p 8081:8081 --name quarkus-native carlos89/quarkus-native:latest
+```
+
+
+
+Construcción y ejecución de imágenes nativas micro UBI/RHEL
+```Construcción y ejecución de imágenes nativas micro UBI/RHEL
+# contrucción
 mvn -Pnative package
 docker build -f .\docker\Dockerfile.native-micro -t carlos89/quarkus-native-micro .
-docker run --rm -d -p 8083:8081 --name quarkus-native-micro carlos89/quarkus-native-micro:latest
 
--- contrucción con imagen nativa micro lite UBI/RHEL
+# ejecución
+docker run --rm -d -p 8083:8081 --name quarkus-native-micro carlos89/quarkus-native-micro:latest
+```
+
+
+
+Construcción y ejecución de imágenes nativas micro lite UBI/RHEL
+```Construcción y ejecución de imágenes nativas micro lite UBI/RHEL
+# contrucción
 mvn -Pnative package
 docker build -f .\docker\Dockerfile.native-micro-lite -t carlos89/quarkus-native-micro-lite .
+
+# ejecución
 docker run --rm -d -p 8084:8081 --name quarkus-native-micro-lite carlos89/quarkus-native-micro-lite:latest
+```
 
--- construcción de imagen con jvm
+
+
+Construcción y ejecución de imagen jvm UBI/RHEL
+```Construcción y ejecución de imagen jvm UBI/RHEL
+# construcción con imagen jvm UBI/RHEL en docker desktop
 docker build -f .\docker\Dockerfile -t carlos89/quarkus-jvm .
-docker run --rm -d -p 8082:8081 --name quarkus-jvm carlos89/quarkus-jvm:latest
 
-## Propiedades para opentelemetry
+# ejecución de imagen jvm UBI/RHEL en docker desktop
+docker run --rm -d -p 8082:8081 --name quarkus-jvm carlos89/quarkus-jvm:latest
+```
+
+
+# Propiedades para opentelemetry
 quarkus.otel.traces.exporter (by default cdi)
 quarkus.otel.metrics.exporter (by default cdi)
 quarkus.otel.logs.exporter (by default cdi)
-```
 
-comando apra ejecutar k6 con docker: docker run --rm -i -v "C:\Users\gcall\Documents\carlos\workspace\quarkus-camel-rest\scripts":/scripts -w /scripts --add-host=host.docker.internal:host-gateway grafana/k6:latest run --vus 20 --duration 1m --out json=resultado.json script.js
+
+## Ejecución k6 con docker: 
+```Ejecucar k6 con docker:
+docker run --rm -i -v "C:\Users\gcall\Documents\carlos\workspace\quarkus-camel-rest\scripts":/scripts -w /scripts --add-host=host.docker.internal:host-gateway grafana/k6:latest run --vus 20 --duration 1m --out json=resultado.json script.js
